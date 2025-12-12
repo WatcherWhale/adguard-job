@@ -2,6 +2,7 @@ package adguard
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -23,6 +24,16 @@ type EncryptionSettings struct {
 	PrivateKeySaved  bool   `json:"private_key_saved"`
 }
 
+var client *http.Client
+
+func init() {
+	tr := http.DefaultTransport.(*http.Transport).Clone()
+	tr.TLSClientConfig = &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	client = &http.Client{Transport: tr}
+}
+
 func GetCurrentSettings(baseUrl string, username string, password string) (EncryptionSettings, error) {
 	statusUrl, err := url.JoinPath(baseUrl, "/control/tls/status")
 	if err != nil {
@@ -36,7 +47,7 @@ func GetCurrentSettings(baseUrl string, username string, password string) (Encry
 
 	req.SetBasicAuth(username, password)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return EncryptionSettings{}, err
 	}
@@ -74,7 +85,7 @@ func SetSettings(baseUrl, username, password string, settings EncryptionSettings
 	}
 	req.SetBasicAuth(username, password)
 
-	_, err = http.DefaultClient.Do(req)
+	_, err = client.Do(req)
 	if err != nil {
 		return err
 	}

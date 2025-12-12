@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/tls"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/WatcherWhale/adguard-job/pkg/adguard"
@@ -18,8 +16,6 @@ var (
 )
 
 func main() {
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
 	log.Print("Reading secrets...")
 	cert, err := os.ReadFile(certLocation)
 	if err != nil {
