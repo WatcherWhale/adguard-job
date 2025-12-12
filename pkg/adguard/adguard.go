@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -79,15 +80,21 @@ func SetSettings(baseUrl, username, password string, settings EncryptionSettings
 	}
 
 	buf := bytes.NewBuffer(jsonBytes)
-	req, err := http.NewRequest(http.MethodGet, statusUrl, buf)
+	req, err := http.NewRequest(http.MethodPost, statusUrl, buf)
 	if err != nil {
 		return err
 	}
+	req.Header.Add("content-type", "application/json")
 	req.SetBasicAuth(username, password)
 
-	_, err = client.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		return err
+	}
+
+	if res.StatusCode < 200 || res.StatusCode > 299 {
+		body, _ := io.ReadAll(res.Body)
+		return fmt.Errorf("request failed with invalid status code %d: %s", res.StatusCode, string(body))
 	}
 
 	return nil

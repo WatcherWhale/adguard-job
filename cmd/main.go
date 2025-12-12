@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"log"
 	"os"
 
@@ -34,8 +35,8 @@ func main() {
 	}
 
 	// Set keys
-	settings.CertificateChain = string(cert)
-	settings.PrivateKey = string(key)
+	settings.CertificateChain = base64.StdEncoding.EncodeToString(cert)
+	settings.PrivateKey = base64.StdEncoding.EncodeToString(key)
 	settings.PrivateKeySaved = false
 
 	log.Print("Configuring new settings...")

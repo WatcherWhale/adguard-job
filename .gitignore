@@ -24,3 +24,5 @@
 go.work
 
 test_data/
+*.crt
+*.key
